@@ -4,6 +4,7 @@ import { SteamLogo } from "./SteamLogo";
 
 type Props = {
   playerSummary: (PlayerSummaryType & AdditionalPlayerSummaryType) | undefined;
+  message?: string;
 };
 
 const width = 540;
@@ -67,7 +68,19 @@ const styles = {
     opacity: 0.9,
     margin:0
   },
-} 
+  badgeFallbackContent: {
+    display: "flex",
+    alignItems: "center",
+    padding: "10px 10px",
+    height: `${height - 20}px`,
+    boxSizing: "border-box",
+  } as React.CSSProperties,
+  badgeFallbackText: {
+    fontSize: "20px",
+    color: "#b8b6b4",
+    margin: 0,
+  },
+}
 
 export function SteamBadge(props: Props) {
   if (!props.playerSummary) {
@@ -81,8 +94,13 @@ export function SteamBadge(props: Props) {
       >
         <foreignObject width={width} height={height}>
           <main {...{ xmlns: "http://www.w3.org/1999/xhtml" }} style={styles.badgeContainer}>
-            <div>
-              <p>Player not found</p>
+            <aside style={styles.badgeSteamLogo}>
+              <SteamLogo />
+            </aside>
+            <div style={styles.badgeFallbackContent}>
+              <p style={styles.badgeFallbackText}>
+                {props.message ?? "Player not found"}
+              </p>
             </div>
           </main>
         </foreignObject>

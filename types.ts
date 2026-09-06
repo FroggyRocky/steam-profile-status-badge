@@ -1,5 +1,5 @@
 export type PlayerSummaryType = {
-  steamId: string;
+  steamid: string;
   personaname: string;
   avatar: string;
   avatarfull: string;
@@ -17,8 +17,8 @@ export type AdditionalPlayerSummaryType = {
   
 }
 export type GetPlayerSummaryResponse = {
-  response: {
-    players: Array<Omit<PlayerSummaryType, 'status' | 'profileImageBase64'>>;
+  response?: {
+    players?: PlayerSummaryType[];
   };
 };
 

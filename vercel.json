@@ -2,7 +2,7 @@
 	"redirects": [
 		{
 			"source": "/",
-			"destination": "https://github.com/akellbl4/spotify-badge"
+			"destination": "https://github.com/FroggyRocky/steam-profile-status-badge"
 		}
 	]
 }
