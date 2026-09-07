@@ -1,9 +1,15 @@
-import { PlayerSummaryType, GetPlayerSummaryResponse } from "../types";
+import { GetPlayerSummaryResponse, PlayerSummaryResult } from "../types";
+
+/** A Steam ID64 is 17 digits. Anything else is a custom profile name. */
+const STEAM_ID_PATTERN = /^\d{17}$/;
+
+export function isValidSteamId(steamId: string): boolean {
+  return STEAM_ID_PATTERN.test(steamId);
+}
 
 export async function fetchPlayerSummary(
-  steamId: string | null
-): Promise<PlayerSummaryType | undefined> {
-  if (!steamId) return undefined;
+  steamId: string
+): Promise<PlayerSummaryResult> {
   try {
     const res = await fetch(
       `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${process.env.STEAM_API_KEY}&steamids=${encodeURIComponent(
@@ -11,16 +17,17 @@ export async function fetchPlayerSummary(
       )}`
     );
     if (!res.ok) {
-      return undefined;
+      return { ok: false, reason: "STEAM_UNAVAILABLE" };
     }
     const result: GetPlayerSummaryResponse = await res.json();
-    const data = result.response?.players?.[0];
-    if (!data) {
-      return undefined;
+    const player = result.response?.players?.[0];
+    if (!player) {
+      return { ok: false, reason: "NOT_FOUND" };
     }
-    return data;
+    return { ok: true, player };
   } catch (error) {
-    return undefined;
+    // Network failure or an unparseable body both mean we could not reach Steam.
+    return { ok: false, reason: "STEAM_UNAVAILABLE" };
   }
 }
 

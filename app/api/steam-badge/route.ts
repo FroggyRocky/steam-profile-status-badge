@@ -1,21 +1,31 @@
 import { NextRequest } from "next/server";
-import { fetchPlayerSummary } from "../../../lib/playerLib";
+import { fetchPlayerSummary, isValidSteamId } from "../../../lib/playerLib";
+import { BADGE_ERRORS, BadgeError } from "../../../lib/badgeErrors";
 export const dynamic = "force-dynamic";
+
+/** Same wording as the SVG badge, so both endpoints explain a failure identically. */
+function errorResponse(error: BadgeError) {
+  return Response.json(
+    { error: error.title, hint: error.hint },
+    { status: error.status, headers: { "Cache-Control": error.cacheControl } }
+  );
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const steamId = searchParams.get("steamId");
-
+    const steamId = request.nextUrl.searchParams.get("steamId");
     if (!steamId) {
-      return Response.json({ error: "steamId is required" }, { status: 400 });
+      return errorResponse(BADGE_ERRORS.MISSING_ID);
     }
-    const data = await fetchPlayerSummary(steamId);
-    if (!data) {
-      return Response.json({ error: "Player not found" }, { status: 404 });
+    if (!isValidSteamId(steamId)) {
+      return errorResponse(BADGE_ERRORS.INVALID_ID);
     }
-    return Response.json({ data });
+    const result = await fetchPlayerSummary(steamId);
+    if (!result.ok) {
+      return errorResponse(BADGE_ERRORS[result.reason]);
+    }
+    return Response.json({ data: result.player });
   } catch (error) {
-    return Response.json({ error: "Something went wrong" }, { status: 500 });
+    return errorResponse(BADGE_ERRORS.UNEXPECTED);
   }
 }

@@ -1,10 +1,11 @@
 import React from "react";
 import { PlayerSummaryType, AdditionalPlayerSummaryType } from "../types";
+import { BadgeError, BADGE_ERRORS } from "../lib/badgeErrors";
 import { SteamLogo } from "./SteamLogo";
 
 type Props = {
   playerSummary: (PlayerSummaryType & AdditionalPlayerSummaryType) | undefined;
-  message?: string;
+  error?: BadgeError;
 };
 
 const width = 540;
@@ -70,20 +71,28 @@ const styles = {
   },
   badgeFallbackContent: {
     display: "flex",
-    alignItems: "center",
-    padding: "10px 10px",
+    flexDirection: "column",
+    justifyContent: "center",
+    padding: "10px 20px",
     height: `${height - 20}px`,
     boxSizing: "border-box",
   } as React.CSSProperties,
-  badgeFallbackText: {
+  badgeFallbackTitle: {
     fontSize: "20px",
-    color: "#b8b6b4",
+    color: "#c7d5e0",
     margin: 0,
   },
+  badgeFallbackHint: {
+    fontSize: "12px",
+    color: "#8f98a0",
+    fontWeight: 100,
+    margin: "6px 0 0 0",
+  } as React.CSSProperties,
 }
 
 export function SteamBadge(props: Props) {
   if (!props.playerSummary) {
+    const fallback = props.error ?? BADGE_ERRORS.NOT_FOUND;
     return (
       <svg
         fill="none"
@@ -98,9 +107,8 @@ export function SteamBadge(props: Props) {
               <SteamLogo />
             </aside>
             <div style={styles.badgeFallbackContent}>
-              <p style={styles.badgeFallbackText}>
-                {props.message ?? "Player not found"}
-              </p>
+              <p style={styles.badgeFallbackTitle}>{fallback.title}</p>
+              <p style={styles.badgeFallbackHint}>{fallback.hint}</p>
             </div>
           </main>
         </foreignObject>

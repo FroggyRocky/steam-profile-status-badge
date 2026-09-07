@@ -22,6 +22,14 @@ export type GetPlayerSummaryResponse = {
   };
 };
 
+/**
+ * Steam returning no player and Steam being unreachable are different problems,
+ * so they get different badges instead of a single "not found".
+ */
+export type PlayerSummaryResult =
+  | { ok: true; player: PlayerSummaryType }
+  | { ok: false; reason: "NOT_FOUND" | "STEAM_UNAVAILABLE" };
+
 export type StatusKeyType = keyof typeof PersonaStateEnum;
 
 export enum PersonaStateEnum {
